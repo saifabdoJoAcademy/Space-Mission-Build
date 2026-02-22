@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Space Mission</title>
@@ -8,114 +8,124 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            /* Remove fixed height so page can scroll */
-            min-height: 100%;
-            overflow-x: hidden; /* optional: hide horizontal scroll */
-        }
+      /* Force the page to allow scrolling */
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: auto; 
+        min-height: 100vh;
+        overflow-y: auto !important; 
+        -webkit-overflow-scrolling: touch;
+        background-color: #231f20; /* Matches Unity default */
+      }
 
-        #unity-container {
-            width: 100%;
-            /* set desired height for canvas, can adjust */
-            height: 600px; 
-            margin: 20px auto; /* optional spacing */
-        }
+      #unity-container { 
+        width: 100%; 
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 50px; /* Space at the bottom to ensure scroll room */
+      }
 
-        #unity-canvas-container, #unity-canvas {
-            width: 100%;
-            height: 100%;
-        }
+      #unity-canvas-container {
+        position: relative;
+        width: 100%;
+        max-width: 960px;
+        margin: 0 auto;
+      }
 
-        #unity-loading-bar {
-            position: relative;
-            width: 100%;
-            height: 4px;
-            background-color: #333;
-            margin-bottom: 10px;
-        }
+      #unity-canvas {
+        width: 100% !important;
+        height: 100% !important;
+        display: block;
+      }
 
-        #unity-progress-bar-full {
-            width: 0%;
-            height: 100%;
-            background-color: #4caf50;
-        }
-
-        #unity-footer {
-            margin-top: 10px;
-            text-align: center;
-        }
+      #unity-footer {
+        width: 100%;
+        max-width: 960px;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
-
-    <h1>Welcome to Space Mission</h1>
-    <p>This is some content above the Unity canvas.</p>
-
+  </head>
+  <body>
     <div id="unity-container">
-        <div id="unity-canvas-container">
-            <canvas id="unity-canvas"></canvas>
+      <div id="unity-canvas-container">
+        <canvas id="unity-canvas"></canvas>
+      </div>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
         </div>
-        <div id="unity-loading-bar">
-            <div id="unity-logo"></div>
-            <div id="unity-progress-bar-empty">
-                <div id="unity-progress-bar-full"></div>
-            </div>
-        </div>
-        <div id="unity-footer">
-            <div id="unity-fullscreen-button">Fullscreen</div>
-        </div>
+      </div>
+      <div id="unity-footer">
+        <div id="unity-fullscreen-button"></div>
+      </div>
+      
+      <div style="color: white; padding: 20px; text-align: center;">
+        <h2>Mission Briefing</h2>
+        <p>Scroll down for more information about your journey through space.</p>
+      </div>
     </div>
 
-    <p>This is some content below the Unity canvas so you can scroll down.</p>
-    <p>More content...</p>
-    <p>More content...</p>
-
     <script>
-        var buildUrl = "Build";
-        var loaderUrl = buildUrl + "/Space Mission.loader.js";
-        var config = {
-            dataUrl: buildUrl + "/Space Mission.data",
-            frameworkUrl: buildUrl + "/Space Mission.framework.js",
-            codeUrl: buildUrl + "/Space Mission.wasm",
-            streamingAssetsUrl: "StreamingAssets",
-            companyName: "Ula",
-            productName: "Space Mission",
-            productVersion: "1.0",
-        };
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Space Mission.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/Space Mission.data",
+        frameworkUrl: buildUrl + "/Space Mission.framework.js",
+        codeUrl: buildUrl + "/Space Mission.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Ula",
+        productName: "Space Mission",
+        productVersion: "1.0",
+      };
 
-        var container = document.querySelector("#unity-container");
-        var canvas = document.querySelector("#unity-canvas");
-        var canvasContainer = document.querySelector("#unity-canvas-container");
-        var loadingBar = document.querySelector("#unity-loading-bar");
-        var progressBarFull = document.querySelector("#unity-progress-bar-full");
-        var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-        var unityInstance = null;
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var canvasContainer = document.querySelector("#unity-canvas-container");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var unityInstance = null;
 
-        loadingBar.style.display = "block";
+      // Handle Responsive Aspect Ratio
+      const targetWidth = 960;
+      const targetHeight = 600;
+      const aspectRatio = targetHeight / targetWidth;
 
-        var script = document.createElement("script");
-        script.src = loaderUrl;
-        script.onload = () => {
-            createUnityInstance(canvas, config, (progress) => {
-                progressBarFull.style.width = 100 * progress + "%";
-            }).then((instance) => {
-                unityInstance = instance;
-                loadingBar.style.display = "none";
-                if (fullscreenButton)
-                {
-                    fullscreenButton.onclick = () => {
-                        unityInstance.SetFullscreen(1);
-                    };
-                }
-            }).catch((message) => {
-                alert(message);
-            });
-        };
-        document.body.appendChild(script);
+      function updateCanvasSize() {
+        // Calculate height based on current container width to maintain aspect ratio
+        var currentWidth = canvasContainer.offsetWidth;
+        canvasContainer.style.height = (currentWidth * aspectRatio) + "px";
+      }
+
+      window.addEventListener('resize', updateCanvasSize);
+      updateCanvasSize();
+
+      loadingBar.style.display = "block";
+
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((instance) => {
+          unityInstance = instance;
+          loadingBar.style.display = "none";
+          if (fullscreenButton)
+          {
+            fullscreenButton.onclick = () => {
+              unityInstance.SetFullscreen(1);
+            };
+          }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
     </script>
-
-</body>
+  </body>
 </html>
