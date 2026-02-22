@@ -11,10 +11,10 @@
         html, body {
             margin: 0;
             padding: 0;
-            overflow: hidden;
             width: 100%;
             height: 100%;
-            touch-action: none; /* prevent scrolling on mobile */
+            overflow: hidden;
+            touch-action: none; /* prevents scrolling on mobile */
         }
 
         #unity-container, #unity-canvas-container, #unity-canvas {
@@ -26,7 +26,7 @@
         #unity-canvas {
             display: block;
             margin: 0 auto;
-            transform-origin: center center;
+            background: black;
         }
     </style>
 </head>
@@ -49,6 +49,7 @@
 <script>
     var buildUrl = "Build";
     var loaderUrl = buildUrl + "/Space Mission.loader.js";
+
     var config = {
         dataUrl: buildUrl + "/Space Mission.data",
         frameworkUrl: buildUrl + "/Space Mission.framework.js",
@@ -69,6 +70,17 @@
 
     loadingBar.style.display = "block";
 
+    // Set initial canvas size
+    function resizeCanvas() {
+        canvasContainer.style.width = window.innerWidth + "px";
+        canvasContainer.style.height = window.innerHeight + "px";
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
     var script = document.createElement("script");
     script.src = loaderUrl;
     script.onload = () => {
@@ -78,53 +90,19 @@
             unityInstance = instance;
             loadingBar.style.display = "none";
 
-            // Fullscreen button handler
             if (fullscreenButton) {
                 fullscreenButton.onclick = () => {
                     unityInstance.SetFullscreen(1);
-                    forceLandscape();
+                    // Resize canvas after fullscreen
+                    setTimeout(resizeCanvas, 100);
                 };
             }
-
-            // Recalculate if user resizes window
-            window.addEventListener("resize", () => {
-                if (document.fullscreenElement) {
-                    forceLandscape();
-                } else {
-                    resetCanvas();
-                }
-            });
 
         }).catch((message) => {
             alert(message);
         });
     };
     document.body.appendChild(script);
-
-    // Force landscape by rotating canvas if needed
-    function forceLandscape() {
-        let width = window.innerWidth;
-        let height = window.innerHeight;
-
-        if (height > width) {
-            // Portrait → rotate 90 degrees
-            canvasContainer.style.width = height + "px";
-            canvasContainer.style.height = width + "px";
-            canvas.style.transform = "rotate(90deg)";
-        } else {
-            // Already landscape
-            canvasContainer.style.width = width + "px";
-            canvasContainer.style.height = height + "px";
-            canvas.style.transform = "";
-        }
-    }
-
-    // Reset canvas when exiting fullscreen
-    function resetCanvas() {
-        canvasContainer.style.width = window.innerWidth + "px";
-        canvasContainer.style.height = window.innerHeight + "px";
-        canvas.style.transform = "";
-    }
 </script>
 </body>
 </html>
