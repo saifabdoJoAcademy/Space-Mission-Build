@@ -8,51 +8,12 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-      /* Force the page to allow scrolling */
-      html, body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: auto; 
-        min-height: 100vh;
-        overflow-y: auto !important; 
-        -webkit-overflow-scrolling: touch;
-        background-color: #231f20; /* Matches Unity default */
-      }
-
-      #unity-container { 
-        width: 100%; 
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding-bottom: 50px; /* Space at the bottom to ensure scroll room */
-      }
-
-      #unity-canvas-container {
-        position: relative;
-        width: 100%;
-        max-width: 960px;
-        margin: 0 auto;
-      }
-
-      #unity-canvas {
-        width: 100% !important;
-        height: 100% !important;
-        display: block;
-      }
-
-      #unity-footer {
-        width: 100%;
-        max-width: 960px;
-        margin-top: 10px;
-      }
     </style>
   </head>
   <body>
     <div id="unity-container">
       <div id="unity-canvas-container">
-        <canvas id="unity-canvas"></canvas>
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
       </div>
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
@@ -63,13 +24,7 @@
       <div id="unity-footer">
         <div id="unity-fullscreen-button"></div>
       </div>
-      
-      <div style="color: white; padding: 20px; text-align: center;">
-        <h2>Mission Briefing</h2>
-        <p>Scroll down for more information about your journey through space.</p>
-      </div>
     </div>
-
     <script>
       var buildUrl = "Build";
       var loaderUrl = buildUrl + "/Space Mission.loader.js";
@@ -91,20 +46,8 @@
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
 
-      // Handle Responsive Aspect Ratio
-      const targetWidth = 960;
-      const targetHeight = 600;
-      const aspectRatio = targetHeight / targetWidth;
-
-      function updateCanvasSize() {
-        // Calculate height based on current container width to maintain aspect ratio
-        var currentWidth = canvasContainer.offsetWidth;
-        canvasContainer.style.height = (currentWidth * aspectRatio) + "px";
-      }
-
-      window.addEventListener('resize', updateCanvasSize);
-      updateCanvasSize();
-
+      canvasContainer.style.width = "960px";
+      canvasContainer.style.height = "600px";
       loadingBar.style.display = "block";
 
       var script = document.createElement("script");
