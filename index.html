@@ -8,6 +8,18 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
+      /* Optional: Show a message if portrait */
+      #orientation-warning {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        display: none;
+        background: black;
+        color: white;
+        font-size: 2em;
+        text-align: center;
+        line-height: 100vh;
+        z-index: 1000;
+      }
     </style>
   </head>
   <body>
@@ -25,50 +37,106 @@
         <div id="unity-fullscreen-button"></div>
       </div>
     </div>
+
+    <!-- Optional: Portrait warning -->
+    <div id="orientation-warning">Please rotate your device to landscape</div>
+
     <script>
+      // -------------------------
+      // Build file URLs (no spaces)
+      // -------------------------
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/Space Mission.loader.js";
+      var loaderUrl = buildUrl + "/SpaceMission.loader.js";
       var config = {
-        dataUrl: buildUrl + "/Space Mission.data",
-        frameworkUrl: buildUrl + "/Space Mission.framework.js",
-        codeUrl: buildUrl + "/Space Mission.wasm",
+        dataUrl: buildUrl + "/SpaceMission.data",
+        frameworkUrl: buildUrl + "/SpaceMission.framework.js",
+        codeUrl: buildUrl + "/SpaceMission.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Ula",
         productName: "Space Mission",
         productVersion: "1.0",
       };
 
+      // -------------------------
+      // DOM references
+      // -------------------------
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var canvasContainer = document.querySelector("#unity-canvas-container");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var orientationWarning = document.querySelector("#orientation-warning");
       var unityInstance = null;
 
       canvasContainer.style.width = "960px";
       canvasContainer.style.height = "600px";
       loadingBar.style.display = "block";
 
+      // -------------------------
+      // Load Unity
+      // -------------------------
       var script = document.createElement("script");
       script.src = loaderUrl;
+
       script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((instance) => {
-          unityInstance = instance;
-          loadingBar.style.display = "none";
-          if (fullscreenButton)
-          {
-            fullscreenButton.onclick = () => {
-              unityInstance.SetFullscreen(1);
-            };
-          }
-        }).catch((message) => {
-          alert(message);
-        });
+        if (!unityInstance) { // Prevent multiple instances
+          createUnityInstance(canvas, config, (progress) => {
+            progressBarFull.style.width = 100 * progress + "%";
+          }).then((instance) => {
+            unityInstance = instance;
+            loadingBar.style.display = "none";
+
+            // -------------------------
+            // Fullscreen safety
+            // -------------------------
+            let isFullscreen = false;
+            if (fullscreenButton) {
+              fullscreenButton.onclick = () => {
+                if (!isFullscreen && unityInstance) {
+                  unityInstance.SetFullscreen(1);
+                  isFullscreen = true;
+                }
+              };
+            }
+
+            // -------------------------
+            // Enforce landscape
+            // -------------------------
+            function checkOrientation() {
+              const isLandscape = window.innerWidth > window.innerHeight;
+              if (!isLandscape) {
+                orientationWarning.style.display = "block";
+                container.style.display = "none";
+              } else {
+                orientationWarning.style.display = "none";
+                container.style.display = "block";
+              }
+            }
+
+            window.addEventListener("resize", checkOrientation);
+            window.addEventListener("orientationchange", checkOrientation);
+            checkOrientation(); // initial check
+
+          }).catch((message) => {
+            console.error(message);
+          });
+        }
       };
+
       document.body.appendChild(script);
+
+      // -------------------------
+      // Optional: Handle window resize for canvas scaling
+      // -------------------------
+      window.addEventListener("resize", () => {
+        if (unityInstance) {
+          const width = window.innerWidth;
+          const height = window.innerHeight;
+          canvasContainer.style.width = width + "px";
+          canvasContainer.style.height = height + "px";
+        }
+      });
     </script>
   </body>
 </html>
