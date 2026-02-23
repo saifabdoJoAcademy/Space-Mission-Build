@@ -50,36 +50,18 @@
       canvasContainer.style.height = "600px";
       loadingBar.style.display = "block";
 
-      // This function can be called from the HTML button OR from your .jslib
-      window.RequestLandscapeFullscreen = function() {
-        if (canvas.requestFullscreen) {
-          canvas.requestFullscreen().then(function() {
-            if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('landscape').catch(function(error) {
-                console.warn("Orientation lock failed: ", error);
-              });
-            }
-          }).catch(function(err) {
-            console.error("Fullscreen request failed: ", err);
-          });
-        } else if (canvas.webkitRequestFullscreen) {
-          canvas.webkitRequestFullscreen();
-        }
-      };
-
       var script = document.createElement("script");
       script.src = loaderUrl;
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
+          progressBarFull.style.width = 100 * progress + "%";z
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              // Now calling the landscape-forcing function instead of the default
-              window.RequestLandscapeFullscreen();
+              unityInstance.SetFullscreen(1);
             };
           }
         }).catch((message) => {
