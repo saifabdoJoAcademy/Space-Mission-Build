@@ -8,8 +8,6 @@
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
     <style>
-      /* Optional: Darken background during rotation/fullscreen transitions */
-      body { background-color: #000; }
     </style>
   </head>
   <body>
@@ -52,23 +50,20 @@
       canvasContainer.style.height = "600px";
       loadingBar.style.display = "block";
 
-      // --- GLOBAL FUNCTION FOR UNITY & BUTTON ---
-      window.toggleLandscapeFullscreen = function() {
-        // Request fullscreen on the container (canvas + UI)
-        if (container.requestFullscreen) {
-          container.requestFullscreen().then(() => {
-            // Once in fullscreen, try to lock orientation
+      // This function can be called from the HTML button OR from your .jslib
+      window.RequestLandscapeFullscreen = function() {
+        if (canvas.requestFullscreen) {
+          canvas.requestFullscreen().then(function() {
             if (screen.orientation && screen.orientation.lock) {
-              screen.orientation.lock('landscape').catch((err) => {
-                console.warn("Orientation lock failed: ", err);
+              screen.orientation.lock('landscape').catch(function(error) {
+                console.warn("Orientation lock failed: ", error);
               });
             }
-          }).catch((err) => {
-            console.error("Fullscreen failed: ", err);
+          }).catch(function(err) {
+            console.error("Fullscreen request failed: ", err);
           });
-        } else if (container.webkitRequestFullscreen) {
-          // Fallback for iOS/Older Safari
-          container.webkitRequestFullscreen();
+        } else if (canvas.webkitRequestFullscreen) {
+          canvas.webkitRequestFullscreen();
         }
       };
 
@@ -80,11 +75,11 @@
         }).then((instance) => {
           unityInstance = instance;
           loadingBar.style.display = "none";
-          
-          if (fullscreenButton) {
+          if (fullscreenButton)
+          {
             fullscreenButton.onclick = () => {
-              // Call the new landscape-aware function instead of SetFullscreen(1)
-              window.toggleLandscapeFullscreen();
+              // Now calling the landscape-forcing function instead of the default
+              window.RequestLandscapeFullscreen();
             };
           }
         }).catch((message) => {
