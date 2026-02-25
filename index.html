@@ -5,11 +5,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Space Mission</title>
     <meta name="description" content="">
-
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
 
-    <!-- MOBILE VIEWPORT -->
+    <!-- Mobile viewport -->
     <meta name="viewport"
           content="width=device-width,
                    initial-scale=1.0,
@@ -26,77 +25,24 @@
         background: black;
       }
 
-      /* Main Unity container */
       #unity-container {
         position: fixed;
         width: 100vw;
         height: 100vh;
         display: flex;
         flex-direction: column;
-        justify-content: flex-start; /* Keep top space for logo/loading bar */
-      }
-
-      /* Canvas container */
-      #unity-canvas-container,
-      #unity-canvas {
-        flex: 1 1 auto;
-        width: 100%;
-        height: 100%;
-        background: black;
-      }
-
-      /* Loading bar & company logo */
-      #unity-loading-bar {
-        width: 100%;
-        max-width: 600px;
-        height: 30px;
-        margin: 10px auto;
-        position: relative;
-      }
-
-      #unity-logo {
-        height: 20px;
-        margin-bottom: 5px;
-        background: url('TemplateData/favicon.ico') no-repeat center left;
-        background-size: contain;
-      }
-
-      #unity-progress-bar-empty {
-        width: 100%;
-        height: 10px;
-        background: #222;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-
-      #unity-progress-bar-full {
-        width: 0%;
-        height: 100%;
-        background: linear-gradient(90deg, #00ffcc, #00aaff);
-        border-radius: 5px;
-        transition: width 0.2s ease;
-      }
-
-      /* Footer/menu */
-      #unity-footer {
-        width: 100%;
-        text-align: center;
-        padding: 5px 0;
+        justify-content: flex-start; /* keep logo/loading bar at top */
         box-sizing: border-box;
       }
 
-      #unity-fullscreen-button {
-        padding: 8px 12px;
-        background: rgba(0,0,0,0.6);
-        color: white;
-        font-family: sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        border-radius: 5px;
-        display: inline-block;
+      #unity-canvas-container,
+      #unity-canvas {
+        width: 100%;
+        flex: 1 1 auto;
+        margin: 10px auto; /* keep good margin top/bottom */
       }
 
-      /* ROTATE OVERLAY */
+      /* Rotate overlay */
       #rotate-overlay {
         position: fixed;
         width: 100%;
@@ -111,11 +57,10 @@
         font-size: 22px;
         z-index: 9999;
       }
-
     </style>
   </head>
   <body>
-    <!-- ROTATE DEVICE OVERLAY -->
+    <!-- Rotate device overlay -->
     <div id="rotate-overlay">
       Please rotate your device to landscape
     </div>
@@ -124,16 +69,14 @@
       <div id="unity-canvas-container">
         <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
       </div>
-
       <div id="unity-loading-bar">
         <div id="unity-logo"></div>
         <div id="unity-progress-bar-empty">
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-
       <div id="unity-footer">
-        <div id="unity-fullscreen-button">Fullscreen</div>
+        <div id="unity-fullscreen-button"></div>
       </div>
     </div>
 
@@ -158,7 +101,7 @@
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
       var unityInstance = null;
 
-      // ✅ REMOVE fixed sizing
+      // Remove fixed width/height so canvas can be dynamic
       // canvasContainer.style.width = "960px";
       // canvasContainer.style.height = "600px";
 
@@ -175,7 +118,7 @@
           if (fullscreenButton)
           {
             fullscreenButton.onclick = () => {
-              // Cross-platform fullscreen
+              // Desktop & Android fullscreen
               if (container.requestFullscreen) {
                 container.requestFullscreen().then(() => {
                   if (screen.orientation && screen.orientation.lock) {
@@ -185,7 +128,6 @@
               } else if (container.webkitRequestFullscreen) {
                 container.webkitRequestFullscreen();
               }
-
               // Force canvas resize
               setTimeout(() => {
                 window.dispatchEvent(new Event("resize"));
@@ -198,7 +140,7 @@
       };
       document.body.appendChild(script);
 
-      // ✅ Landscape overlay enforcement
+      // Rotate overlay enforcement
       function checkOrientation() {
         var overlay = document.getElementById("rotate-overlay");
         if (window.innerHeight > window.innerWidth) {
@@ -211,7 +153,6 @@
       window.addEventListener("resize", checkOrientation);
       window.addEventListener("orientationchange", checkOrientation);
       checkOrientation();
-
     </script>
   </body>
 </html>
