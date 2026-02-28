@@ -1,139 +1,74 @@
 <!DOCTYPE html>
 <html lang="en-us">
-<head>
-  <meta charset="utf-8">
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>Space Mission</title>
-
-  <!-- IMPORTANT for iPhone safe area -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-  <link rel="shortcut icon" href="TemplateData/favicon.ico">
-  <link rel="stylesheet" href="TemplateData/style.css">
-
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: rgb(255, 255, 255);
-      overflow: hidden;
-      height: 100%;
-      width: 100%;
-    }
-
-    #unity-container {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    #unity-canvas-container {
-      width: 100%;
-      height: 100%;
-    }
-
-    #unity-canvas {
-      width: 100%;
-      height: 100%;
-    }
-
-    /* iPhone safe area (activated via JS only in landscape) */
-    body.iphone-landscape {
-      padding-left: env(safe-area-inset-left);
-      padding-right: env(safe-area-inset-right);
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
-      box-sizing: border-box;
-    }
-  </style>
-</head>
-
-<body>
-  <div id="unity-container">
-    <div id="unity-canvas-container">
-      <canvas id="unity-canvas"></canvas>
-    </div>
-
-    <div id="unity-loading-bar">
-      <div id="unity-logo"></div>
-      <div id="unity-progress-bar-empty">
-        <div id="unity-progress-bar-full"></div>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Space Mission</title>
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="TemplateData/favicon.ico">
+    <link rel="stylesheet" href="TemplateData/style.css">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div id="unity-container">
+      <div id="unity-canvas-container">
+        <canvas id="unity-canvas" style="width: 100%; height: 100%;"></canvas>
+      </div>
+      <div id="unity-loading-bar">
+        <div id="unity-logo"></div>
+        <div id="unity-progress-bar-empty">
+          <div id="unity-progress-bar-full"></div>
+        </div>
+      </div>
+      <div id="unity-footer">
+        <div id="unity-fullscreen-button"></div>
       </div>
     </div>
+    <script>
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/Space Mission.loader.js";
+      var config = {
+        dataUrl: buildUrl + "/Space Mission.data",
+        frameworkUrl: buildUrl + "/Space Mission.framework.js",
+        codeUrl: buildUrl + "/Space Mission.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Ula",
+        productName: "Space Mission",
+        productVersion: "1.0",
+      };
 
-    <div id="unity-footer">
-      <div id="unity-fullscreen-button"></div>
-    </div>
-  </div>
+      var container = document.querySelector("#unity-container");
+      var canvas = document.querySelector("#unity-canvas");
+      var canvasContainer = document.querySelector("#unity-canvas-container");
+      var loadingBar = document.querySelector("#unity-loading-bar");
+      var progressBarFull = document.querySelector("#unity-progress-bar-full");
+      var fullscreenButton = document.querySelector("#unity-fullscreen-button");
+      var unityInstance = null;
 
-  <script>
-    // =============================
-    // iPhone Safe Area Logic ONLY
-    // =============================
+      canvasContainer.style.width = "960px";
+      canvasContainer.style.height = "600px";
+      loadingBar.style.display = "block";
 
-    function isIPhone() {
-      return /iPhone/.test(navigator.userAgent);
-    }
-
-    function applyIPhoneSafeArea() {
-      if (isIPhone() && window.innerWidth > window.innerHeight) {
-        document.body.classList.add("iphone-landscape");
-      } else {
-        document.body.classList.remove("iphone-landscape");
-      }
-    }
-
-    window.addEventListener("resize", applyIPhoneSafeArea);
-    window.addEventListener("orientationchange", applyIPhoneSafeArea);
-    applyIPhoneSafeArea();
-
-
-    // =============================
-    // Unity Loader (UNCHANGED)
-    // =============================
-
-    var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/Space Mission.loader.js";
-    var config = {
-      dataUrl: buildUrl + "/Space Mission.data",
-      frameworkUrl: buildUrl + "/Space Mission.framework.js",
-      codeUrl: buildUrl + "/Space Mission.wasm",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "Ula",
-      productName: "Space Mission",
-      productVersion: "1.0",
-    };
-
-    var canvas = document.querySelector("#unity-canvas");
-    var loadingBar = document.querySelector("#unity-loading-bar");
-    var progressBarFull = document.querySelector("#unity-progress-bar-full");
-    var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-    var unityInstance = null;
-
-    loadingBar.style.display = "block";
-
-    var script = document.createElement("script");
-    script.src = loaderUrl;
-
-    script.onload = () => {
-      createUnityInstance(canvas, config, (progress) => {
-        progressBarFull.style.width = 100 * progress + "%";
-      }).then((instance) => {
-        unityInstance = instance;
-        loadingBar.style.display = "none";
-
-        if (fullscreenButton) {
-          fullscreenButton.onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
-        }
-      }).catch((message) => {
-        alert(message);
-      });
-    };
-
-    document.body.appendChild(script);
-  </script>
-</body>
+      var script = document.createElement("script");
+      script.src = loaderUrl;
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressBarFull.style.width = 100 * progress + "%";
+        }).then((instance) => {
+          unityInstance = instance;
+          loadingBar.style.display = "none";
+          if (fullscreenButton)
+          {
+            fullscreenButton.onclick = () => {
+              unityInstance.SetFullscreen(1);
+            };
+          }
+        }).catch((message) => {
+          alert(message);
+        });
+      };
+      document.body.appendChild(script);
+    </script>
+  </body>
 </html>
